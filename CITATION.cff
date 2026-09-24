@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+title: "Fuzzy-Calibrated Conformal Prediction for Adaptive Uncertainty-Aware AI"
+message: "If you use this artifact, cite the associated ISCMI manuscript and repository."
+type: software
+authors:
+  - family-names: Fuentes
+    given-names: "Fernando May"
+    affiliation: "Instituto Politecnico Nacional (UPIITA); Beihang University, School of Information and Communication Engineering"
+    orcid: "https://orcid.org/0009-0002-3953-5224"
+repository-code: "https://github.com/FernandoMay/iscmi-01-fuzzy-conformal"
+license: MIT
+date-released: 2026-09-15

@@ -1,0 +1,72 @@
+\documentclass[sigconf]{acmart}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\title{Fuzzy-Calibrated Conformal Prediction for Adaptive Uncertainty-Aware AI}
+\author{Fernando May Fuentes}
+\affiliation{\institution{Instituto Politecnico Nacional, UPIITA}\city{Mexico City}\country{Mexico}}
+\affiliation{\institution{Beihang University, School of Information and Communication Engineering}\city{Beijing}\country{China}}
+\email{fmayf1500@alumno.ipn.mx}
+\thanks{ORCID: \href{https://orcid.org/0009-0002-3953-5224}{0009-0002-3953-5224}.}
+\begin{document}
+\begin{abstract}
+Reliable uncertainty estimates are essential when machine-learning predictions support high-consequence decisions. This paper presents a transparent fuzzy-calibrated conformal prediction baseline that combines bootstrap logistic ensembles, disagreement-based uncertainty, and adaptive interval scaling. The fuzzy controller maps ensemble disagreement to a bounded uncertainty regime, while conformal calibration preserves finite-sample coverage under exchangeability assumptions. In a seeded experiment using the public scikit-learn breast-cancer dataset as a methodological proxy, the baseline classifier achieved 97.37\% accuracy, a Brier score of 0.0210, and expected calibration error of 0.0226. The fuzzy conformal intervals achieved 93.86\% empirical coverage with mean width 0.1759 at nominal error level $\alpha=0.1$. These results are not clinical validation; they demonstrate the executable protocol and motivate evaluation on temporal, physiological, and distribution-shift benchmarks.
+\end{abstract}
+\keywords{uncertainty quantification, conformal prediction, interval type-2 fuzzy logic, calibration, trustworthy AI}
+\maketitle
+
+\section{Introduction}
+Neural and statistical predictors often produce confident outputs outside their training distribution. In high-consequence settings, a useful system must distinguish uncertainty caused by noisy observations from uncertainty caused by insufficient model knowledge. This paper develops a compact, auditable baseline rather than claiming clinical deployment.
+
+\section{Related Work}
+Deep ensembles estimate predictive variability through independently fitted models, while conformal prediction supplies distribution-free finite-sample guarantees under exchangeability. Fuzzy systems provide interpretable rules for translating continuous uncertainty signals into operating regimes. The contribution here is their explicit composition: ensemble disagreement is converted into a bounded fuzzy scale that controls conformal interval width.
+
+\section{Methods}
+Let $f_k(x)$ denote the probability from ensemble member $k$. The predictive mean and disagreement are:
+\begin{equation}
+\bar f(x)=K^{-1}\sum_{k=1}^K f_k(x),\qquad u(x)=\operatorname{std}\{f_k(x)\}_{k=1}^K.
+\end{equation}
+Calibration scores use the absolute residual $s_i=|y_i-\bar f(x_i)|$. For error level $\alpha$, the conformal radius is the empirical quantile $q_{1-\alpha}$ of calibration scores. The fuzzy controller maps $u(x)$ to $g(x)\in[0,1]$ and returns:
+\begin{equation}
+ [\ell(x),r(x)]=[\bar f(x)-q(1+0.5g(x)),\bar f(x)+q(1+0.5g(x))].
+\end{equation}
+The current implementation uses bootstrap logistic-regression members and a transparent quantile-based membership function. It is not an Interval Type-2 Fuzzy Neural Network; that is a planned extension.
+
+\section{Experimental Setup}
+The public scikit-learn breast-cancer dataset is used as a methodological proxy and not as clinical validation. The data are split into 341 training, 114 calibration, and 114 test samples using stratification and seed 20260915. Seven bootstrap ensemble members are trained. We report accuracy, Brier score, expected calibration error, empirical conformal coverage, and mean interval width. No patient-identifying data or clinical decision is involved.
+
+\section{Results}
+\begin{table}[h]
+\centering
+\caption{Seeded proxy benchmark results.}
+\begin{tabular}{lr}
+\toprule
+Metric & Observed value \\
+\midrule
+Baseline accuracy & 0.9737 \\
+Baseline Brier score & 0.0210 \\
+Baseline ECE & 0.0226 \\
+Conformal quantile & 0.1225 \\
+Fuzzy coverage & 0.9386 \\
+Mean interval width & 0.1759 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The empirical coverage exceeds the nominal 90\% target in this single seeded proxy run. The result does not establish statistical significance or generalization. It confirms that the repository produces a complete uncertainty artifact with separable calibration and test stages.
+
+\section{Limitations and Future Work}
+The benchmark is not clinical, the data are non-temporal, and only a logistic ensemble is implemented. Future work will add interval type-2 membership functions, public physiological time series, temporal splits, distribution-shift tests, repeated seeds, MC dropout and Bayesian baselines, and explicit selective prediction/abstention metrics.
+
+\section{Conclusion}
+The proposed fuzzy-calibrated conformal baseline provides an executable and auditable starting point for adaptive uncertainty-aware AI. Its current result is a methodological proxy, not a high-stakes deployment claim. The next stage is validation on time-dependent physiological and engineering datasets with stronger baselines and repeated trials.
+
+\begin{thebibliography}{99}
+\bibitem{angelopoulos} A. N. Angelopoulos and S. Bates, ``A gentle introduction to conformal prediction and distribution-free uncertainty quantification,'' 2021.
+\bibitem{lakshminarayanan} B. Lakshminarayanan, A. Pritzel, and C. Blundell, ``Simple and scalable predictive uncertainty estimation using deep ensembles,'' NeurIPS, 2017.
+\bibitem{guo} C. Guo et al., ``On calibration of modern neural networks,'' ICML, 2017.
+\bibitem{zadeh} L. A. Zadeh, ``The concept of a linguistic variable and its application to approximate reasoning,'' Information Sciences, 1975.
+\bibitem{vazquez} E. Vazquez and H. S. Fokoue, ``Interval type-2 fuzzy systems for uncertainty modeling,'' 2009.
+\bibitem{iscmi} ISCMI 2026, ``Call for Papers,'' 2026.
+\end{thebibliography}
+\end{document}

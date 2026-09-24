@@ -1,0 +1,16 @@
+{
+  "dataset": "sklearn breast_cancer proxy; not clinical validation",
+  "seed": 20260915,
+  "ensemble_size": 7,
+  "alpha": 0.1,
+  "n_train": 341,
+  "n_calibration": 114,
+  "n_test": 114,
+  "baseline_accuracy": 0.9736842105263158,
+  "baseline_brier": 0.0209722413681785,
+  "baseline_ece": 0.022649571103513757,
+  "conformal_quantile": 0.1225185319729048,
+  "fuzzy_coverage": 0.9385964912280702,
+  "fuzzy_mean_interval_width": 0.175859478036299,
+  "fuzzy_ece": 0.029743496399440815
+}
