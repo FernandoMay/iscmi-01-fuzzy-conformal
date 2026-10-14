@@ -2,6 +2,7 @@
 \usepackage{amsmath}
 \usepackage{booktabs}
 \usepackage{hyperref}
+\setlength{\emergencystretch}{2em}
 \title{Fuzzy-Calibrated Conformal Prediction for Adaptive Uncertainty-Aware AI}
 \author{Fernando May Fuentes}
 \affiliation{\institution{Instituto Politecnico Nacional, UPIITA}\city{Mexico City}\country{Mexico}}
@@ -10,7 +11,7 @@
 \thanks{ORCID: \href{https://orcid.org/0009-0002-3953-5224}{0009-0002-3953-5224}.}
 \begin{document}
 \begin{abstract}
-Reliable uncertainty estimates are essential when machine-learning predictions support high-consequence decisions. This paper presents a transparent fuzzy-calibrated conformal prediction baseline that combines bootstrap logistic ensembles, disagreement-based uncertainty, and adaptive interval scaling. The fuzzy controller maps ensemble disagreement to a bounded uncertainty regime, while conformal calibration preserves finite-sample coverage under exchangeability assumptions. In a seeded experiment using the public scikit-learn breast-cancer dataset as a methodological proxy, the baseline classifier achieved 97.37\% accuracy, a Brier score of 0.0210, and expected calibration error of 0.0226. The fuzzy conformal intervals achieved 93.86\% empirical coverage with mean width 0.1759 at nominal error level $\alpha=0.1$. These results are not clinical validation; they demonstrate the executable protocol and motivate evaluation on temporal, physiological, and distribution-shift benchmarks.
+Reliable uncertainty estimates are essential when machine-learning predictions support high-consequence decisions. This paper presents a transparent fuzzy-calibrated conformal prediction baseline that combines bootstrap logistic ensembles, disagreement-based uncertainty, and adaptive interval scaling. The fuzzy controller maps ensemble disagreement to a bounded uncertainty regime, while conformal calibration preserves finite-sample coverage under exchangeability assumptions. In a seeded experiment using the public scikit-learn breast-cancer dataset as a methodological proxy, the baseline classifier achieved 97.37\% accuracy, a Brier score of 0.0210, and expected calibration error of 0.0226. The fuzzy conformal intervals achieved 93.86\% empirical coverage with mean width 0.1759 at nominal error level $\alpha=0.1$. The same construction is extended to selective action selection for autonomous agents, where the agent executes an action only when the conformal prediction set is a singleton and abstains otherwise; on public proxy datasets the agent attains marginal coverage close to the $90\%$ nominal level at low selective risk. These results are not clinical validation; they demonstrate the executable protocol and motivate evaluation on temporal, physiological, and distribution-shift benchmarks.
 \end{abstract}
 \keywords{uncertainty quantification, conformal prediction, interval type-2 fuzzy logic, calibration, trustworthy AI}
 \maketitle
@@ -55,11 +56,51 @@ Mean interval width & 0.1759 \\
 
 The empirical coverage exceeds the nominal 90\% target in this single seeded proxy run. The result does not establish statistical significance or generalization. It confirms that the repository produces a complete uncertainty artifact with separable calibration and test stages.
 
+\section{Selective Action Selection for Autonomous Agents}
+\label{sec:selective}
+The base construction provides binary coverage. We extend it to safe action
+selection, where an agent chooses one action from a finite set $\mathcal{A}$ or
+abstains. For a test instance $x$ the prediction set is
+\begin{equation}
+\mathcal{C}(x)=\{a\in\mathcal{A}: 1-p_a(x)\le \tau(x)\},
+\end{equation}
+where $p_a(x)$ is the ensemble-mean probability of action $a$. The baseline sets
+$\tau(x)=q_{1-\alpha}$; the fuzzy variant sets
+$\tau(x)=q_{1-\alpha}(1+\beta g(x))$ with $\beta=0.5$ and $g(x)$ the bounded
+disagreement map from Eq.~(2). The agent executes the action when
+$|\mathcal{C}(x)|=1$ and abstains otherwise. We report marginal coverage, mean set
+size, abstention rate, selective risk (error among executed actions), and the
+area under the risk--coverage curve (AURC) obtained by ranking instances by
+top-action confidence.
+
+\begin{table*}[t]
+\centering
+\small
+\caption{Selective action selection on public proxies (seed 20260915, $K=7$, $\alpha=0.10$, $\beta=0.50$). Lower selective risk and AURC are better.}
+\begin{tabular}{lrrrrrr}
+\toprule
+Proxy & $|\mathcal{A}|$ & Cov.\ base & Cov.\ fuzzy & Risk base & Risk fuzzy & AURC \\
+\midrule
+digits & 10 & 0.867 & 0.897 & 0.006 & 0.018 & 0.003 \\
+wine   & 3  & 0.944 & 1.000 & 0.000 & 0.000 & 0.000 \\
+iris   & 3  & 0.867 & 0.967 & 0.071 & 0.038 & 0.014 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Fuzzy scaling raises coverage and enlarges prediction sets, trading set size for
+robustness; on \textit{digits} it also lowered the abstention rate because baseline
+empty sets were refilled to singletons. The \textit{wine} proxy is near-separable
+(always-act risk $0.000$) and therefore uninformative. As above, these are proxy
+results on classification datasets; no deployment or safety claim is made. The
+corresponding code and recorded metrics are in \path{src/agent_selection.py}
+and \path{data/agent_selection_metrics.json}.
+
 \section{Limitations and Future Work}
-The benchmark is not clinical, the data are non-temporal, and only a logistic ensemble is implemented. Future work will add interval type-2 membership functions, public physiological time series, temporal splits, distribution-shift tests, repeated seeds, MC dropout and Bayesian baselines, and explicit selective prediction/abstention metrics.
+The benchmark is not clinical, the data are non-temporal, and only a logistic ensemble is implemented. The selective action-selection study is included, but it rests on small, largely separable classification proxies and a single seed. Future work will add interval type-2 membership functions, public physiological time series, temporal splits, distribution-shift tests, repeated seeds and confidence intervals, MC dropout and Bayesian baselines, additional selective-prediction baselines, and evaluation on datasets with genuine action ambiguity.
 
 \section{Conclusion}
-The proposed fuzzy-calibrated conformal baseline provides an executable and auditable starting point for adaptive uncertainty-aware AI. Its current result is a methodological proxy, not a high-stakes deployment claim. The next stage is validation on time-dependent physiological and engineering datasets with stronger baselines and repeated trials.
+The proposed fuzzy-calibrated conformal baseline provides an executable and auditable starting point for adaptive uncertainty-aware AI, now including a selective action-selection protocol with abstention. Its current result is a methodological proxy, not a high-stakes deployment claim. The next stage is validation on time-dependent physiological and engineering datasets with stronger baselines and repeated trials.
 
 \begin{thebibliography}{99}
 \bibitem{angelopoulos} A. N. Angelopoulos and S. Bates, ``A gentle introduction to conformal prediction and distribution-free uncertainty quantification,'' 2021.
